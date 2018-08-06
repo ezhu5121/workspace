@@ -1,5 +1,5 @@
 
-all: check  install
+all: check
 	@echo "** make <tgt>"
 	@echo "   update: update ecmh and depends"
 	@echo "   build: build ecmh"
@@ -41,7 +41,8 @@ build: check
 	done
 
 generated_jbms = ecmh/bld
-install: check build
+jbms_hdrs = $(shell find ecmh/src -name "*.hpp")
+install: check
 	cd $(generated_jbms) && \
 	for f in *.a; do \
 		ar -xv $$f; \
@@ -50,4 +51,10 @@ install: check build
 		ar -rv libecmh.a `find . -name "*.o"` && \
 		sudo install -v libecmh.a /usr/local/lib/ && \
 		rm -f *.o libecmh.a
+
+
+install-hdr: check
+	cd ecmh/src && tar cf - `find jbms -name "*.hpp"` \
+		|sudo tar xf - -C /usr/local/include/
+	
 
