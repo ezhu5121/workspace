@@ -1,8 +1,9 @@
 
-all: check 
-	@echo "make <tgt>"
-	@echo " update: update ecmh and depends"
-	@echo " build: build ecmh"
+all: check  install
+	@echo "** make <tgt>"
+	@echo "   update: update ecmh and depends"
+	@echo "   build: build ecmh"
+	@echo "   install: install libecma.a
 
 check:
 	@if [ ! -f /.dockerenv ]; then \
@@ -39,6 +40,14 @@ build: check
 		fi \
 	done
 
-
-
+generated_jbms = ecmh/bld
+install: check build
+	cd $(generated_jbms) && \
+	for f in *.a; do \
+		ar -xv $$f; \
+	done
+	@cd $(generated_jbms) && \
+		ar -rv libecmh.a `find . -name "*.o"` && \
+		sudo install -v libecmh.a /usr/local/lib/ && \
+		rm -f *.o libecmh.a
 
