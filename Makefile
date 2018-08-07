@@ -41,7 +41,7 @@ build: check
 	done
 
 generated_jbms = ecmh/bld
-jbms_hdrs = $(shell find ecmh/src -name "*.hpp")
+#generated_hdrs = $(shell cd $(generated_jbms)/src; find jbms -name "*.hpp")
 install: check
 	cd $(generated_jbms) && \
 	for f in *.a; do \
@@ -55,6 +55,22 @@ install: check
 
 install-hdr: check
 	cd ecmh/src && tar cf - `find jbms -name "*.hpp"` \
-		|sudo tar xf - -C /usr/local/include/
-	
+		|sudo tar xf - -C /usr/local/include/;
+	cd ecmh/bld/src && tar cf - `find jbms -name "*.hpp"` | \
+		sudo tar xf - -C /usr/local/include/;
+
+demo.o: demo.cpp
+	clang++ -std=c++1y -march=native $(CPPFLAGS) $(OPENSSL_INCS)  -c -o $@ $<
+
+INCS := /usr/local/include \
+		/usr/local/include/jbms-openssl/src\
+		/usr/local/include/jbms-utility/src\
+		/usr/local/include/jbms-array_view/src\
+		/usr/local/include/jbms
+CPPFLAGS += $(addprefix -I,$(INCS))
+OPENSSL_INCS := $(shell PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig/; pkg-config --cflags openssl)
+OPENSSL_LIBS := $(shell PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig/; pkg-config --libs openssl)
+demo: demo.o
+	clang++ $(OPENSSL_LIBS) -L/usr/local/lib -static demo.o -lecmh -o $@
+
 
