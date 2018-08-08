@@ -3,7 +3,7 @@ all: check
 	@echo "** make <tgt>"
 	@echo "   update: update ecmh and depends"
 	@echo "   build: build ecmh"
-	@echo "   install: install libecma.a
+	@echo "   install: install libecma.a"
 
 check:
 	@if [ ! -f /.dockerenv ]; then \
@@ -26,7 +26,7 @@ update: check
 		fi;\
 	done
 
-build: check
+build: check $(shell find . -name "*.cpp")
 	@for d in $(subprojs); do \
 		if [ ! -e $$d ]; then \
 			git clone --depth=1 https://github.com/ezhu5121/$$d.git;\
@@ -42,7 +42,7 @@ build: check
 
 generated_jbms = ecmh/bld
 #generated_hdrs = $(shell cd $(generated_jbms)/src; find jbms -name "*.hpp")
-install: check
+install: check build install-hdr
 	cd $(generated_jbms) && \
 	for f in *.a; do \
 		ar -xv $$f; \
@@ -71,6 +71,6 @@ CPPFLAGS += $(addprefix -I,$(INCS))
 OPENSSL_INCS := $(shell PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig/; pkg-config --cflags openssl)
 OPENSSL_LIBS := $(shell PKG_CONFIG_PATH=/usr/local/ssl/lib/pkgconfig/; pkg-config --libs openssl)
 demo: demo.o
-	clang++ $(OPENSSL_LIBS) -L/usr/local/lib -static demo.o -lecmh -o $@
+	clang++ -L/usr/local/lib demo.o -lecmh -o $@ $(OPENSSL_LIBS) -ldl
 
 
