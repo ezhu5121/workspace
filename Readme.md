@@ -7,4 +7,6 @@
 
 * Note: the build of ecmh will take long time(compile and run), some cpps use complicated template tech, and take big RAM to compile, take a coffe...
 
+## Bazel to build ecmh
+
 
