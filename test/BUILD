@@ -5,7 +5,7 @@ cc_test(
              "-Iexternal/openssl/include"],
     linkopts = ["-lssl"],
     deps = [
-        "@gtest//:main",
+        "@gtest//:gtest",
         "@openssl//:ssl",
     ],
 )
