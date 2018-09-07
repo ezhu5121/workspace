@@ -398,26 +398,31 @@ genrule(
     name = "dpdk-build",
     srcs = [":makefile"],
     outs = _hdrs + _libs + 
-            ["dpdk-procinfo", "dpdk-devbind", "dpdk-pdump", "igb_uio.ko", "rte_kni.ko"],
+            ["dpdk-procinfo",
+             "dpdk-devbind",
+             "dpdk-pdump",
+             "igb_uio.ko",
+             "rte_kni.ko"],
     local = 1,
+    visibility = ["//visibility:private"],
     cmd = """
+    KERNARCH=`uname -r`
     SRCROOT=$$(dirname $(location :makefile))
     pushd $$SRCROOT
         make config EXTRA_CFLAGS="-fPIC" T=x86_64-native-linuxapp-clang
         make T=x86_64-native-linuxapp-clang EXTRA_CFLAGS="-fPIC"\
-         DESTDIR=tmp install 
+            V=1 RTE_KERNELDIR=/lib/modules/$$KERNARCH/build  \
+            DESTDIR=tmp build install
     popd
-    echo "$$(dirname $(location include/dpdk/rte_config.h))"
     cp -rv $$SRCROOT/tmp/include/dpdk/* $$(dirname $(location include/dpdk/rte_config.h))/
     cp -rv $$SRCROOT/tmp/lib/* $$(dirname $(location lib/libdpdk.a))/
     cp -v $$SRCROOT/tmp/bin/dpdk-pdump $(location dpdk-pdump)
     cp -v $$SRCROOT/tmp/bin/dpdk-procinfo $(location dpdk-procinfo)
     cp -v $$SRCROOT/tmp/sbin/dpdk-devbind $(location dpdk-devbind)
-    cp -v $$SRCROOT/tmp/lib/modules/4.15.0-32-generic/extra/dpdk/igb_uio.ko \
+    cp -v $$SRCROOT/tmp/lib/modules/$$KERNARCH/extra/dpdk/igb_uio.ko \
             $(location igb_uio.ko)
-    cp -v $$SRCROOT/tmp/lib/modules/4.15.0-32-generic/extra/dpdk/rte_kni.ko \
+    cp -v $$SRCROOT/tmp/lib/modules/$$KERNARCH/extra/dpdk/rte_kni.ko \
             $(location rte_kni.ko)
 
 """,
-    visibility = ["//visibility:private"],
 )

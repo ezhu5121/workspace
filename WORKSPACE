@@ -36,3 +36,11 @@ new_http_archive (
     strip_prefix = "libelf-0.8.13",
     build_file = "3rd/libelf/BUILD",
 )
+
+new_git_repository(
+    name = "vpp",
+    remote = "https://gerrit.fd.io/r/vpp",
+    tag = "v18.07",
+    build_file = "3rd/vpp/BUILD"
+
+)
